@@ -8,70 +8,83 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class AppComponent implements OnInit {
   public form: FormGroup;
-  public contactList: FormArray;
-
-  // returns all form groups under contacts
-  get contactFormGroup() {
-    return this.form.get('contacts') as FormArray;
-  }
+  public quizList: FormArray;
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
     this.form = this.fb.group({
-      name: [null, Validators.compose([Validators.required])],
-      organization: [null],
-      contacts: this.fb.array([this.createContact()])
+      id: [null],
+      quiz: this.fb.array([this.initQuizRow()]),
+      answers: this.fb.array([this.initAnswerRow(), this.initAnswerRow(), this.initAnswerRow(), this.initAnswerRow()])
     });
 
-    // set contactlist to this field
-    this.contactList = this.form.get('contacts') as FormArray;
+    // set quizList to this field
+    this.quizList = this.form.get('quiz') as FormArray;
   }
 
-  // contact formgroup
-  createContact(): FormGroup {
+  // returns all form groups under quiz
+  get quizFormGroup() {
+    return this.form.get('quiz') as FormArray;
+  }
+
+  get answersFormGroup() {
+    return this.form.get('answers') as FormArray;
+  }
+
+  // quiz formGroup
+  initQuizRow(): FormGroup {
     return this.fb.group({
-      type: ['email', Validators.compose([Validators.required])], // i.e Email, Phone
-      name: [null, Validators.compose([Validators.required])], // i.e. Home, Office
-      value: [null, Validators.compose([Validators.required, Validators.email])]
+      text: ['', Validators.required],
+      language: ['none', Validators.required],
+    });
+  }
+
+  initAnswerRow(): FormGroup {
+    return this.fb.group({
+      text: ['', Validators.required],
+      language: ['none', Validators.required],
+      correct: ['0', Validators.required]
     });
   }
 
   // add a contact form group
-  addContact() {
-    this.contactList.push(this.createContact());
+  addQuizRow() {
+    this.quizList.push(this.initQuizRow());
   }
 
   // remove contact from group
-  removeContact(index) {
-    // this.contactList = this.form.get('contacts') as FormArray;
-    this.contactList.removeAt(index);
-  }
-
-  // triggered to change validation of value field type
-  changedFieldType(index) {
-    let validators = null;
-
-    if (this.getContactsFormGroup(index).controls['type'].value === 'email') {
-      validators = Validators.compose([Validators.required, Validators.email]);
-    } else {
-      validators = Validators.compose([
-        Validators.required,
-        Validators.pattern(new RegExp('^\\+[0-9]?()[0-9](\\d[0-9]{9})$')) // pattern for validating international phone number
-      ]);
+  removeQuizRow(index) {
+    // this.quizList = this.form.get('quiz') as FormArray;
+    if (this.quizList.length > 1) {
+      this.quizList.removeAt(index);
     }
-
-    this.getContactsFormGroup(index).controls['value'].setValidators(
-      validators
-    );
-
-    this.getContactsFormGroup(index).controls['value'].updateValueAndValidity();
   }
 
-  // get the formgroup under contacts form array
-  getContactsFormGroup(index): FormGroup {
-    // this.contactList = this.form.get('contacts') as FormArray;
-    const formGroup = this.contactList.controls[index] as FormGroup;
+  // // triggered to change validation of value field type
+  // changedFieldType(index) {
+  //   let validators = null;
+  //
+  //   if (this.getQuizFormGroup(index).controls['type'].value === 'email') {
+  //     validators = Validators.compose([Validators.required, Validators.email]);
+  //   } else {
+  //     validators = Validators.compose([
+  //       Validators.required,
+  //       Validators.pattern(new RegExp('^\\+[0-9]?()[0-9](\\d[0-9]{9})$')) // pattern for validating international phone number
+  //     ]);
+  //   }
+  //
+  //   this.getQuizFormGroup(index).controls['value'].setValidators(
+  //     validators
+  //   );
+  //
+  //   this.getQuizFormGroup(index).controls['value'].updateValueAndValidity();
+  // }
+
+  // get the formgroup under quiz form array
+  getQuizFormGroup(index): FormGroup {
+    // this.quizList = this.form.get('quiz') as FormArray;
+    const formGroup = this.quizList.controls[index] as FormGroup;
     return formGroup;
   }
 
